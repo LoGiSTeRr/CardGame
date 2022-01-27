@@ -1,7 +1,34 @@
-﻿namespace CardGame.Cards
+﻿using System.Collections.Generic;
+
+namespace CardGame.Cards
 {
+
     public class Card
     {
+        public Card()
+        {
+            Visual = new List<string>()
+            {
+                $"* * * * * * * * * * *",
+                $"*                   *",
+                $"*      {Rarity}       *",
+                $"*                   *",
+                $"*       {Name}        *",
+                $"*                   *",
+                $"*     {Type}      *",
+                $"*                   *",
+                $"*                   *",
+                $"*   ATK  DEF   HP   *",
+                $"*    {Atk}    {Def}    {Hp}    *",
+                $"*                   *",
+                $"*      ENERGY       *",
+                $"*         {Energy}         *",
+                $"*                   *",
+                $"* * * * * * * * * * *",
+            };
+        }
+
+        public List<string> Visual { get; set; }
         private string name;
         public string Name
         {
@@ -72,6 +99,29 @@
                 {
                     def = value;
                 }
+            }
+        }
+
+        private int energy;
+        public int Energy
+        {
+            get => energy;
+            set
+            {
+                if (value > 0)
+                {
+                    energy = value;
+                }
+            }
+        }
+        public CardRarity Rarity { get; set; } = new CardRarity();
+        public CardType Type { get; set; } = new CardType();
+
+        public void Display()
+        {
+            for (int i = 0; i < Visual.Count; i++)
+            {
+                System.Console.WriteLine(Visual[i]);
             }
         }
     }
