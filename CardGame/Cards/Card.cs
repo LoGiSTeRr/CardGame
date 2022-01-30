@@ -5,28 +5,6 @@ namespace CardGame.Cards
 
     public class Card
     {
-        public Card()
-        {
-            Visual = new List<string>()
-            {
-                $"* * * * * * * * * * *",
-                $"*                   *",
-                $"*      {Rarity}       *",
-                $"*                   *",
-                $"*       {Name}        *",
-                $"*                   *",
-                $"*     {Type}      *",
-                $"*                   *",
-                $"*                   *",
-                $"*   ATK  DEF   HP   *",
-                $"*    {Atk}    {Def}    {Hp}    *",
-                $"*                   *",
-                $"*      ENERGY       *",
-                $"*         {Energy}         *",
-                $"*                   *",
-                $"* * * * * * * * * * *",
-            };
-        }
 
         public List<string> Visual { get; set; }
         private string name;
@@ -117,12 +95,52 @@ namespace CardGame.Cards
         public CardRarity Rarity { get; set; } = new CardRarity();
         public CardType Type { get; set; } = new CardType();
 
-        public void Display()
+        private string MakeNormal(string str)
         {
+            string copy = str;
+            int len = (19 - copy.Length) / 2;
+            copy = copy.Insert(0, new string(' ', len));
+            copy = copy.Insert(0, "*");
+            if (str.Length % 2 == 0)
+            {
+                len++;
+            }
+            copy += new string(' ', len);
+            copy += '*';
+            return copy;
+
+        }
+        public void UpdateVisual()
+        {
+            Visual = new List<string>()
+            {
+                $"* * * * * * * * * * *",
+                $"*                   *",
+                MakeNormal(Rarity.ToString()),
+                $"*                   *",
+                MakeNormal(Name.ToString()),
+                $"*                   *",
+                MakeNormal(Type.ToString()),
+                $"*                   *",
+                $"*                   *",
+                $"*   ATK  DEF  HP    *",
+                MakeNormal(Atk.ToString() + "   " + Def.ToString() + "   " + Hp.ToString()),
+                $"*                   *",
+                $"*      ENERGY       *",
+                MakeNormal(Energy.ToString()),
+                $"*                   *",
+                $"* * * * * * * * * * *",
+
+            };
+        }
+        public string GetVisual()
+        {
+            string result = string.Empty;
             for (int i = 0; i < Visual.Count; i++)
             {
-                System.Console.WriteLine(Visual[i]);
+                result += Visual[i].ToString() + '\n';
             }
+            return result;
         }
     }
 }
