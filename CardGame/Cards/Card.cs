@@ -67,19 +67,6 @@ namespace CardGame.Cards
             }
         }
 
-        private int def;
-        public int Def
-        {
-            get => def;
-            set
-            {
-                if (value > 0)
-                {
-                    def = value;
-                }
-            }
-        }
-
         private int energy;
         public int Energy
         {
@@ -122,15 +109,35 @@ namespace CardGame.Cards
                 $"*                   *",
                 MakeNormal(Type.ToString()),
                 $"*                   *",
-                $"*                   *",
-                $"*   ATK  DEF  HP    *",
-                MakeNormal(Atk.ToString() + "   " + Def.ToString() + "   " + Hp.ToString()),
+                $"*   ATK      HP     *",
+                MakeNormal(Atk.ToString() + "       " + Hp.ToString()),
                 $"*                   *",
                 $"*      ENERGY       *",
                 MakeNormal(Energy.ToString()),
                 $"*                   *",
                 $"* * * * * * * * * * *",
 
+            };
+        }
+        public void UpdateBackVisual()
+        {
+            Visual = new List<string>()
+            {
+                $"* * * * * * * * * * *",
+                $"* *               * *",
+                $"*  * * * * * * * *  *",
+                $"*  *             *  *",
+                $"*  *  * * * * *  *  *",
+                $"*  *  *   *   *  *  *",
+                $"*  *  * * * * *  *  *",
+                $"*  *  *   *   *  *  *",
+                $"*  *  * * * * *  *  *",
+                $"*  *  *   *   *  *  *",
+                $"*  *  * * * * *  *  *",
+                $"*  *             *  *",
+                $"*  * * * * * * * *  *",
+                $"* *               * *",
+                $"* * * * * * * * * * *",
             };
         }
         public string GetVisual()
