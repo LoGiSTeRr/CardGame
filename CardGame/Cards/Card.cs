@@ -124,7 +124,7 @@ namespace CardGame.Cards
             Visual = new List<string>()
             {
                 $"* * * * * * * * * * *",
-                $"* *               * *",
+                $"*                   *",
                 $"*  * * * * * * * *  *",
                 $"*  *             *  *",
                 $"*  *  * * * * *  *  *",
@@ -136,12 +136,20 @@ namespace CardGame.Cards
                 $"*  *  * * * * *  *  *",
                 $"*  *             *  *",
                 $"*  * * * * * * * *  *",
-                $"* *               * *",
+                $"*                   *",
                 $"* * * * * * * * * * *",
             };
         }
-        public string GetVisual()
+        public string GetVisual(bool back)
         {
+            if (back)
+            {
+                UpdateBackVisual();
+            }
+            else
+            {
+                UpdateVisual();
+            }
             string result = string.Empty;
             for (int i = 0; i < Visual.Count; i++)
             {

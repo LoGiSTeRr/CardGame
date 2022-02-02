@@ -12,46 +12,68 @@ namespace CardGame
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        private List<IPlayable> players { get; set; } = new List<IPlayable>();
+        public List<IPlayable> Players { get; set; } = new List<IPlayable>();
+        private int currentTurn = 0; // player[0] - you, player[1] - opponent
         private List<Cards.Card> cardsInStock { get; set; } = new List<Cards.Card>();
 
-        public void DisplayGame()
+        public void NextTurn()
         {
-            Cards.Card card1 = new Cards.Card()
-            {
-                Name = "ShieldMan",
-                Atk = 2,
-                MaxHp = 10,
-                Hp = 10,
-                Energy = 5,
-                Type = Cards.CardType.Defense,
-                Rarity = Cards.CardRarity.Legendary
-            };
-            Cards.Card card2 = new Cards.Card()
-            {
-                Name = "Warrior",
-                Atk = 10,
-                MaxHp = 2,
-                Hp = 2,
-                Energy = 5,
-                Type = Cards.CardType.Attack,
-                Rarity = Cards.CardRarity.Common
-            };
-            card1.UpdateVisual();
-            card2.UpdateVisual();
-
+            currentTurn = currentTurn == 1 ? 0 : 1;
+        }
+        public void DisplayGame(bool botPlay)
+        {
+            Application.Top.Add(mainScreen);
+            //      ⚖
+            //   x0    x0
             var yourHand = new Window()
             {
                 X = Pos.Center(),
                 Y = Pos.Center() + 15,
-                Width = 65,
-                Height = 20
+                Width = 21 * Players[currentTurn].LimitOfCards + 6, // 6 is offset
+                Height = 19
             };
             mainScreen.Add(yourHand);
-            yourHand.Add(new Label(card1.GetVisual()) { X = 5, Y = 1 });
-            yourHand.Add(new Label(card2.GetVisual()) { X = 30, Y = 1 });
+            var gameField = new Window()
+            {
+                X = Pos.Center() + 15,
+                Y = 0,
+                Width = 21 * 4 + 4, // 4 is amount of cards on a field
+                Height = 19 * 2 + 2
+            };
+            mainScreen.Add(gameField);
 
-            Application.Top.Add(mainScreen);
+            for (int i = 0; i < Players[currentTurn].CardsInHand.Count; i++)
+            {
+                yourHand.Add(new Label(Players[currentTurn].CardsInHand[i].GetVisual(false)) { X = 1 + 21*i, Y = 1});
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                int player = 0;
+                if (currentTurn == 0)
+                {
+                    player = 1;
+                }
+                if (Players[player].CardsOnTable[i] == null)
+                {
+                    gameField.Add(new Label(new Cards.Card().GetVisual(true)) { X = 1 + 21 * i, Y = 1 });
+                }
+                else
+                {
+                    gameField.Add(new Label(Players[player].CardsOnTable[i].GetVisual(false)) { X = 1 + 21 * i, Y = 1 });
+                }
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                if (Players[currentTurn].CardsOnTable[i] == null)
+                {
+                    gameField.Add(new Label(new Cards.Card().GetVisual(true)) { X = 1 + 21 * i, Y = 19 });
+                }
+                else
+                {
+                    gameField.Add(new Label(Players[currentTurn].CardsOnTable[i].GetVisual(false)) { X = 1 + 21 * i, Y = 19 });
+                }
+            }
+            Application.Run();
         }
     }
 }
