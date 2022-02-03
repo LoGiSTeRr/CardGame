@@ -2,7 +2,6 @@
 
 namespace CardGame.Cards
 {
-
     public class Card
     {
 
@@ -119,37 +118,29 @@ namespace CardGame.Cards
 
             };
         }
-        public void UpdateBackVisual()
+
+        public static string GetBack()
         {
-            Visual = new List<string>()
-            {
-                $"* * * * * * * * * * *",
-                $"*                   *",
-                $"*  * * * * * * * *  *",
-                $"*  *             *  *",
-                $"*  *  * * * * *  *  *",
-                $"*  *  *   *   *  *  *",
-                $"*  *  * * * * *  *  *",
-                $"*  *  *   *   *  *  *",
-                $"*  *  * * * * *  *  *",
-                $"*  *  *   *   *  *  *",
-                $"*  *  * * * * *  *  *",
-                $"*  *             *  *",
-                $"*  * * * * * * * *  *",
-                $"*                   *",
-                $"* * * * * * * * * * *",
-            };
+            return $"* * * * * * * * * * *\n" +
+                   $"*                   *\n" +
+                   $"*  * * * * * * * *  *\n" +
+                   $"*  *             *  *\n" +
+                   $"*  *  * * * * *  *  *\n" +
+                   $"*  *  *   *   *  *  *\n" +
+                   $"*  *  * * * * *  *  *\n" +
+                   $"*  *  *   *   *  *  *\n" +
+                   $"*  *  * * * * *  *  *\n" +
+                   $"*  *  *   *   *  *  *\n" +
+                   $"*  *  * * * * *  *  *\n" +
+                   $"*  *             *  *\n" +
+                   $"*  * * * * * * * *  *\n" +
+                   $"*                   *\n" +
+                   $"* * * * * * * * * * *\n";
         }
-        public string GetVisual(bool back)
+        public string GetVisual()
         {
-            if (back)
-            {
-                UpdateBackVisual();
-            }
-            else
-            {
-                UpdateVisual();
-            }
+            UpdateVisual();
+            
             string result = string.Empty;
             for (int i = 0; i < Visual.Count; i++)
             {

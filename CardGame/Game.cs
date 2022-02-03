@@ -5,6 +5,10 @@ namespace CardGame
 {
     public class Game
     {
+        public Game()
+        {
+            Application.Top.Add(mainScreen);
+        }
         private Window mainScreen = new Window()
         {
             X = 0,
@@ -14,7 +18,7 @@ namespace CardGame
         };
         public List<IPlayable> Players { get; set; } = new List<IPlayable>();
         private int currentTurn = 0; // player[0] - you, player[1] - opponent
-        private List<Cards.Card> cardsInStock { get; set; } = new List<Cards.Card>();
+        public List<Cards.Card> CardsInStock { get; set; } = new List<Cards.Card>();
 
         public void NextTurn()
         {
@@ -22,7 +26,7 @@ namespace CardGame
         }
         public void DisplayGame(bool botPlay)
         {
-            Application.Top.Add(mainScreen);
+            bool cardIsTaken = false;
             //      ⚖
             //   x0    x0
             var yourHand = new Window()
@@ -43,7 +47,7 @@ namespace CardGame
             mainScreen.Add(gameField);
             for (int i = 0; i < Players[currentTurn].CardsInHand.Count; i++)
             {
-                yourHand.Add(new Label(Players[currentTurn].CardsInHand[i].GetVisual(false)) { X = 1 + 21*i, Y = 1});
+                yourHand.Add(new Label(Players[currentTurn].CardsInHand[i].GetVisual()) { X = 1 + 21*i, Y = 1});
             }
             for (int i = 0; i < 4; i++)
             {
@@ -54,22 +58,22 @@ namespace CardGame
                 }
                 if (Players[player].CardsOnTable[i] == null)
                 {
-                    gameField.Add(new Label(new Cards.Card().GetVisual(true)) { X = 1 + 21 * i, Y = 1 });
+                    gameField.Add(new Label(Cards.Card.GetBack()) { X = 1 + 21 * i, Y = 1 });
                 }
                 else
                 {
-                    gameField.Add(new Label(Players[player].CardsOnTable[i].GetVisual(false)) { X = 1 + 21 * i, Y = 1 });
+                    gameField.Add(new Label(Players[player].CardsOnTable[i].GetVisual()) { X = 1 + 21 * i, Y = 1 });
                 }
             }
             for (int i = 0; i < 4; i++)
             {
                 if (Players[currentTurn].CardsOnTable[i] == null)
                 {
-                    gameField.Add(new Label(new Cards.Card().GetVisual(true)) { X = 1 + 21 * i, Y = 19 });
+                    gameField.Add(new Label(Cards.Card.GetBack()) { X = 1 + 21 * i, Y = 19 });
                 }
                 else
                 {
-                    gameField.Add(new Label(Players[currentTurn].CardsOnTable[i].GetVisual(false)) { X = 1 + 21 * i, Y = 19 });
+                    gameField.Add(new Label(Players[currentTurn].CardsOnTable[i].GetVisual()) { X = 1 + 21 * i, Y = 19 });
                 }
             }
             var optionsField = new Window()
@@ -100,7 +104,7 @@ namespace CardGame
             nextTurnBut.Clicked += () =>
             {
                 NextTurn();
-                DisplayGame(false);
+                DisplayGame(botPlay);
             };
             var quitAppication = new Button("Quit application")
             {
@@ -111,8 +115,55 @@ namespace CardGame
             {
                 Application.RequestStop();
             };
+
+            var takeCardLabel = new Label("Take a new card") { X = 30, Y = 12 };
+            optionsField.Add(takeCardLabel);
+            var takeReservoir = new Button("Energy Reservoir") { X = 40, Y = 14 };
+            var backCard2 = new Label(Cards.Card.GetBack()) { X = 40, Y = 16 };
+            optionsField.Add(backCard2);
+            Button takeRandomCard = new Button();
+            Label backCard1 = new Label();
+            if (CardsInStock.Count != 0)
+            {
+                 takeRandomCard = new Button("Random card from the deck") { X = 6, Y = 14 };
+                 backCard1 = new Label(Cards.Card.GetBack()) { X = 10, Y = 16 };
+                 optionsField.Add(backCard1);
+                 optionsField.Add(takeRandomCard);
+            }
+            takeRandomCard.Clicked += () =>
+            {
+                Players[currentTurn].CardsInHand.Add(CardsInStock[0]);
+                yourHand.Add(new Label(CardsInStock[0].GetVisual()) { X = 1 + 21 * (Players[currentTurn].CardsInHand.Count - 1), Y = 1 });
+
+                optionsField.Remove(takeReservoir);
+                optionsField.Remove(takeCardLabel);
+                if (CardsInStock.Count != 0)
+                {
+                    optionsField.Remove(takeRandomCard);
+                    optionsField.Remove(backCard1);
+                }
+                optionsField.Remove(backCard2);
+                cardIsTaken = true;
+                CardsInStock.RemoveAt(0);
+            };
+            takeReservoir.Clicked += () =>
+            {
+                Players[currentTurn].CardsInHand.Add(Cards.CreatedCards.ReservoirCard);
+                yourHand.Add(new Label(Cards.CreatedCards.ReservoirCard.GetVisual()) { X = 1 + 21 * (Players[currentTurn].CardsInHand.Count - 1), Y = 1 });
+
+                optionsField.Remove(takeReservoir);
+                optionsField.Remove(takeCardLabel);
+                if (CardsInStock.Count != 0)
+                {
+                    optionsField.Remove(takeRandomCard);
+                    optionsField.Remove(backCard1);
+                }
+                optionsField.Remove(backCard2);
+                cardIsTaken = true;
+            };
             optionsField.Add(nextTurnBut);
             optionsField.Add(quitAppication);
+            optionsField.Add(takeReservoir);
         }
     }
 }
