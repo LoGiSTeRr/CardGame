@@ -10,6 +10,7 @@ namespace CardGame
         }
         public string Name { get; set; }
         public int LimitOfCards { get; init; }
+        public int AmountOfPoints { get; set; }
         public List<Cards.Card> CardsInHand { get; set; } = new List<Cards.Card>();
         public List<Cards.Card> CardsOnTable { get; set; } = new List<Cards.Card>() { null, null, null, null};
 

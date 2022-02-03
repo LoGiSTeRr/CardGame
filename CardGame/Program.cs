@@ -9,9 +9,7 @@ namespace CardGame
             Application.Init();
             Colors.Base.Normal = Application.Driver.MakeAttribute(Color.Green, Color.Black);
             Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
-
-            //Application.Run();
-
+            
             Cards.Card card1 = new Cards.Card()
             {
                 Name = "ShieldMan",
@@ -40,8 +38,10 @@ namespace CardGame
             game.Players.Add(pl1);
             game.Players.Add(pl2);
             pl1.CardsOnTable[2] = card1;
-            pl2.CardsOnTable[0] = card1;
+            pl2.CardsOnTable[0] = card2;
             game.DisplayGame(false);
+            Application.Run();
+
         }
 
     }

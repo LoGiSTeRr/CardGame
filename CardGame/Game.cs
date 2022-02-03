@@ -35,13 +35,12 @@ namespace CardGame
             mainScreen.Add(yourHand);
             var gameField = new Window()
             {
-                X = Pos.Center() + 15,
+                X = Pos.Center() + 0, // 0 for make first coordinate at senter. Otherwise it will be situated directly on center
                 Y = 0,
                 Width = 21 * 4 + 4, // 4 is amount of cards on a field
                 Height = 19 * 2 + 2
             };
             mainScreen.Add(gameField);
-
             for (int i = 0; i < Players[currentTurn].CardsInHand.Count; i++)
             {
                 yourHand.Add(new Label(Players[currentTurn].CardsInHand[i].GetVisual(false)) { X = 1 + 21*i, Y = 1});
@@ -73,7 +72,47 @@ namespace CardGame
                     gameField.Add(new Label(Players[currentTurn].CardsOnTable[i].GetVisual(false)) { X = 1 + 21 * i, Y = 19 });
                 }
             }
-            Application.Run();
+            var optionsField = new Window()
+            {
+                X = 0,
+                Y = 0,
+                Width = 100,
+                Height = 40
+            };
+            mainScreen.Add(optionsField);
+            optionsField.Add(new Label($"{Players[currentTurn].Name}'s turn.") { X = 40, Y = 2});
+            optionsField.Add(new Label($"Make the difference of damage equal to 5") { X = 51, Y = 4});
+            if (currentTurn == 0)
+            {
+                optionsField.Add(new Label($"your damage: {Players[0].AmountOfPoints}x") { X = 51, Y = 6 });
+                optionsField.Add(new Label($"opponent damage: {Players[1].AmountOfPoints}x") { X = 51, Y = 7 });
+            }
+            else
+            {
+                optionsField.Add(new Label($"your damage: {Players[1].AmountOfPoints}x") { X = 51, Y = 6 });
+                optionsField.Add(new Label($"opponent damage: {Players[0].AmountOfPoints}x") { X = 51, Y = 7 });
+            }
+            var nextTurnBut = new Button("Next turn")
+            {
+                X = 10,
+                Y = 6
+            };
+            nextTurnBut.Clicked += () =>
+            {
+                NextTurn();
+                DisplayGame(false);
+            };
+            var quitAppication = new Button("Quit application")
+            {
+                X = 10,
+                Y = 8
+            };
+            quitAppication.Clicked += () =>
+            {
+                Application.RequestStop();
+            };
+            optionsField.Add(nextTurnBut);
+            optionsField.Add(quitAppication);
         }
     }
 }
