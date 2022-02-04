@@ -2,6 +2,10 @@
 
 namespace CardGame.Cards
 {
+    public abstract class CardAbility
+    {
+
+    }
     public class Card
     {
 
