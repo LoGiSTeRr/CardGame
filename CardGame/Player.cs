@@ -7,14 +7,16 @@ namespace CardGame
         public Player()
         {
             LimitOfCards = 8;
-            DamageRecieved = 0;
+            AmountOfPoints = 0;
+            CardWasTaken = false;
         }
         public string Name { get; set; }
         public int LimitOfCards { get; init; }
-        public int DamageRecieved { get; set; }
+        public float Energy { get; set; }
         public int AmountOfPoints { get; set; }
+        public bool CardWasTaken { get; set; }
         public List<Cards.Card> CardsInHand { get; set; } = new List<Cards.Card>();
-        public List<Cards.Card> CardsOnTable { get; set; } = new List<Cards.Card>() { null, null, null, null};
+        public List<Cards.Card> CardsOnTable { get; set; } = new List<Cards.Card>() { Cards.CreatedCards.GetNullCard(), Cards.CreatedCards.GetNullCard(), Cards.CreatedCards.GetNullCard(), Cards.CreatedCards.GetNullCard() };
 
     }
 }

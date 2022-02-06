@@ -1,5 +1,6 @@
 ﻿using System;
 using Terminal.Gui;
+
 namespace CardGame
 {
     internal class Program
@@ -16,7 +17,6 @@ namespace CardGame
             Game game = new Game();
             game.StartGame(pl1, pl2);
             Application.Run();
-
         }
 
     }

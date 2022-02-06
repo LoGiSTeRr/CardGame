@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Terminal.Gui;
-using System.Linq;
 
 namespace CardGame
 {
@@ -19,20 +18,24 @@ namespace CardGame
         };
         public List<IPlayable> Players { get; set; } = new List<IPlayable>();
         private int selectedPlayer = 0; // player[0] - you, player[1] - opponent
+        private float energy = 0;
         private int opponentOfPlayer { get { return selectedPlayer == 0 ? 1: 0; } }
         public List<Cards.Card> CardsInStock { get; set; } = new List<Cards.Card>();
         public void StartGame(Player pl1, Player pl2)
         {
+            energy = 1;
+            pl1.Energy = energy;
+            pl2.Energy = energy;
             Players.Add(pl1);
             Players.Add(pl2);
             for (int i = 0; i < 4; i++)
             {
-                CardsInStock.Add(Cards.CreatedCards.SkeletonCard);
-                CardsInStock.Add(Cards.CreatedCards.KnightCard);
-                CardsInStock.Add(Cards.CreatedCards.WarriorCard);
-                CardsInStock.Add(Cards.CreatedCards.ShieldManCard);
+                CardsInStock.Add(Cards.CreatedCards.GetSkeletonCard());
+                CardsInStock.Add(Cards.CreatedCards.GetKnightCard());
+                CardsInStock.Add(Cards.CreatedCards.GetWarriorCard());
+                CardsInStock.Add(Cards.CreatedCards.GetShieldManCard());
             }
-            CardsInStock.Shuffle();
+            //CardsInStock.Shuffle();
 
             for (int i = 0; i < 3; i++)
             {
@@ -44,11 +47,11 @@ namespace CardGame
                 pl2.CardsInHand.Add(CardsInStock[0]);
                 CardsInStock.RemoveAt(0);
             }
-            pl1.CardsInHand.Add(Cards.CreatedCards.ReservoirCard);
-            pl2.CardsInHand.Add(Cards.CreatedCards.ReservoirCard);
+            pl1.CardsInHand.Add(Cards.CreatedCards.GetReservoirCard());
+            pl2.CardsInHand.Add(Cards.CreatedCards.GetReservoirCard());
             displayGame(false);
         }
-        private void pullACard(Window optionsField, Button takeReservoir, Label takeCardLabel, Button takeRandomCard, Label backCard1, Label backCard2, Label cardsInStockLabel)
+        private void pullACard(Window optionsField, Button takeReservoir, Label takeCardLabel, Button takeRandomCard, Label backCard1, Label backCard2, Label cardsInStockLabel, Label cardsLeft)
         {
             optionsField.Remove(takeReservoir);
             optionsField.Remove(takeCardLabel);
@@ -57,31 +60,28 @@ namespace CardGame
                 optionsField.Remove(takeRandomCard);
                 optionsField.Remove(backCard1);
                 optionsField.Remove(cardsInStockLabel);
+                optionsField.Remove(cardsLeft);
             }
             optionsField.Remove(backCard2);
+            Players[selectedPlayer].CardWasTaken = true;
         }
-        private void chooseCardToPlace()
-        {
-
-        }
-        private void choosePlaceToPlaceCard()
-        {
-
-        }
-
         private void attack()
         {
             for (int i = 0; i < 4; i++)
             {
-                if (Players[selectedPlayer].CardsOnTable[i] != null)
+                if (!Players[selectedPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                 {
-                    if (Players[opponentOfPlayer].CardsOnTable[i] == null)
+                    if (Players[opponentOfPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                     {
-                        Players[opponentOfPlayer].DamageRecieved += Players[selectedPlayer].CardsOnTable[i].Atk;
+                        Players[selectedPlayer].AmountOfPoints += Players[selectedPlayer].CardsOnTable[i].Atk;
                     }
                     else
                     {
                         Players[opponentOfPlayer].CardsOnTable[i].Hp -= Players[selectedPlayer].CardsOnTable[i].Atk;
+                        if (Players[opponentOfPlayer].CardsOnTable[i].Hp == 0)
+                        {
+                            Players[opponentOfPlayer].CardsOnTable[i] = Cards.CreatedCards.GetNullCard();
+                        }
                     }
                 }
             }
@@ -89,7 +89,23 @@ namespace CardGame
         private void nextTurn()
         {
             attack();
+            if (Players[selectedPlayer].AmountOfPoints - Players[opponentOfPlayer].AmountOfPoints >= 5)
+            {
+                MessageBox.Query(" ", $"{Players[selectedPlayer].Name} won!!\n" +
+                                      $"your damage: {Players[selectedPlayer].AmountOfPoints}x\n" +
+                                      $"opponent damage: {Players[opponentOfPlayer].AmountOfPoints}x", "Ok");
+                Application.RequestStop();
+                return;
+            }
+            energy += 0.5f;
             selectedPlayer = selectedPlayer == 1 ? 0 : 1;
+            Players[selectedPlayer].CardWasTaken = false;
+            Players[selectedPlayer].Energy = energy;
+            mainScreen.Clear();
+            Window temp = new Window(" ") { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() };
+            mainScreen.Add(temp);
+            MessageBox.Query(" ", "Change the player", "Ok");
+            mainScreen.Remove(temp);
         }
         public void displayGame(bool botPlay)
         {
@@ -115,23 +131,18 @@ namespace CardGame
             }
             for (int i = 0; i < 4; i++)
             {
-                int player = 0;
-                if (selectedPlayer == 0)
-                {
-                    player = 1;
-                }
-                if (Players[player].CardsOnTable[i] == null)
+                if (Players[opponentOfPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                 {
                     gameField.Add(new Label(Cards.Card.GetBack()) { X = 1 + 21 * i, Y = 1 });
                 }
                 else
                 {
-                    gameField.Add(new Label(Players[player].CardsOnTable[i].GetVisual()) { X = 1 + 21 * i, Y = 1 });
+                    gameField.Add(new Label(Players[opponentOfPlayer].CardsOnTable[i].GetVisual()) { X = 1 + 21 * i, Y = 1 });
                 }
             }
             for (int i = 0; i < 4; i++)
             {
-                if (Players[selectedPlayer].CardsOnTable[i] == null)
+                if (Players[selectedPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                 {
                     gameField.Add(new Label(Cards.Card.GetBack()) { X = 1 + 21 * i, Y = 19 });
                 }
@@ -171,98 +182,114 @@ namespace CardGame
             {
                 Application.RequestStop();
             };
-
-            var takeCardLabel = new Label("Take a new card") { X = 30, Y = 12 };
-            optionsField.Add(takeCardLabel);
-            var takeReservoir = new Button("Energy Reservoir") { X = 40, Y = 14 };
-            var backCard2 = new Label(Cards.Card.GetBack()) { X = 40, Y = 16 };
-            optionsField.Add(backCard2);
-            Button takeRandomCard = new Button();
-            Label backCard1 = new Label();
-            Label cardsInStockLabel = new Label();
-            if (CardsInStock.Count != 0)
+            if (!Players[selectedPlayer].CardWasTaken)
             {
-                takeRandomCard = new Button("Random card from the deck") { X = 6, Y = 14 };
-                backCard1 = new Label(Cards.Card.GetBack()) { X = 10, Y = 16 };
-                optionsField.Add(backCard1);
-                optionsField.Add(takeRandomCard);
-                cardsInStockLabel = new Label($"Cards left: {CardsInStock.Count}") { X = 10, Y = 36 };
+                var takeCardLabel = new Label("Take a new card") { X = 30, Y = 12 };
+                optionsField.Add(takeCardLabel);
+                var takeReservoir = new Button("Energy Reservoir") { X = 40, Y = 14 };
+                var backCard2 = new Label(Cards.Card.GetBack()) { X = 40, Y = 16 };
+                optionsField.Add(backCard2);
+                Button takeRandomCard = new Button();
+                Label backCard1 = new Label();
+                Label cardsInStockLabel = new Label();
+                Label cardsLeft = new Label();
+                if (CardsInStock.Count != 0)
+                {
+                    takeRandomCard = new Button("Random card from the deck") { X = 6, Y = 14 };
+                    backCard1 = new Label(Cards.Card.GetBack()) { X = 10, Y = 16 };
+                    cardsLeft = new Label($"Cards left: {CardsInStock.Count}") { X = 10, Y = 32 };
+                    
+                    optionsField.Add(backCard1);
+                    optionsField.Add(takeRandomCard);
+                    optionsField.Add(cardsLeft);
 
+                }
+                optionsField.Add(takeReservoir);
+
+                takeRandomCard.Clicked += () =>
+                {
+                    if (Players[selectedPlayer].LimitOfCards == Players[selectedPlayer].CardsInHand.Count)
+                    {
+                        return;
+                    }
+                    Players[selectedPlayer].CardsInHand.Add(CardsInStock[0]);
+                    yourHand.Add(new Label(CardsInStock[0].GetVisual()) { X = 1 + 21 * (Players[selectedPlayer].CardsInHand.Count - 1), Y = 1 });
+                    pullACard(optionsField, takeReservoir, takeCardLabel, takeRandomCard, backCard1, backCard2, cardsInStockLabel, cardsLeft);
+                    CardsInStock.RemoveAt(0);
+                };
+                takeReservoir.Clicked += () =>
+                {
+                    if (Players[selectedPlayer].LimitOfCards == Players[selectedPlayer].CardsInHand.Count)
+                    {
+                        return;
+                    }
+                    Players[selectedPlayer].CardsInHand.Add(Cards.CreatedCards.GetReservoirCard());
+                    yourHand.Add(new Label(Cards.CreatedCards.GetReservoirCard().GetVisual()) { X = 1 + 21 * (Players[selectedPlayer].CardsInHand.Count - 1), Y = 1 });
+                    pullACard(optionsField, takeReservoir, takeCardLabel, takeRandomCard, backCard1, backCard2, cardsInStockLabel, cardsLeft);
+                };
             }
-            takeRandomCard.Clicked += () =>
-            {
-                if (Players[selectedPlayer].LimitOfCards == Players[selectedPlayer].CardsInHand.Count)
-                {
-                    return;
-                }
-                Players[selectedPlayer].CardsInHand.Add(CardsInStock[0]);
-                yourHand.Add(new Label(CardsInStock[0].GetVisual()) { X = 1 + 21 * (Players[selectedPlayer].CardsInHand.Count - 1), Y = 1 });
-                pullACard(optionsField, takeReservoir, takeCardLabel, takeRandomCard, backCard1, backCard2, cardsInStockLabel);
-                CardsInStock.RemoveAt(0);
-            };
-            takeReservoir.Clicked += () =>
-            {
-                if (Players[selectedPlayer].LimitOfCards == Players[selectedPlayer].CardsInHand.Count)
-                {
-                    return;
-                }
-                Players[selectedPlayer].CardsInHand.Add(Cards.CreatedCards.ReservoirCard);
-                yourHand.Add(new Label(Cards.CreatedCards.ReservoirCard.GetVisual()) { X = 1 + 21 * (Players[selectedPlayer].CardsInHand.Count - 1), Y = 1 });
-                pullACard(optionsField, takeReservoir, takeCardLabel, takeRandomCard, backCard1, backCard2, cardsInStockLabel);
-            };
             optionsField.Add(nextTurnBut);
             optionsField.Add(quitAppication);
-            optionsField.Add(takeReservoir);
-
             Button placeCard = new Button("Place a card")
             {
                 X = 75,
                 Y = 14
             };
+            Label yourEnergy = new Label($"Your energy: {(int)Players[selectedPlayer].Energy}")
+            {
+                X = 75,
+                Y = 12
+            };
             placeCard.Clicked += () =>
             {
                 optionsField.Remove(placeCard);
-                Label placeCardText = new Label("Choose the card to place.") { X = 65, Y = 14 };
-                optionsField.Add(placeCardText);
-                List<Button> buttons1 = new List<Button>();
+                List<NStack.ustring> list = new List<NStack.ustring>();
+                list.Add("Cancel");
                 for (int i = 0; i < Players[selectedPlayer].CardsInHand.Count; i++)
                 {
-                    buttons1.Add(new Button((i + 1).ToString()) { X = 71, Y = 16 + i*2 });
-                    buttons1[i].Clicked += () =>
-                    {
-                        for (int j = 0; j < Players[selectedPlayer].CardsInHand.Count; j++)
-                        {
-                            optionsField.Remove(buttons1[j]);
-                        }
-                        optionsField.Remove(placeCardText);
-                        Label placeCardPosText = new Label("Now choose the position.") { X = 65, Y = 14 };
-                        optionsField.Add(placeCardPosText);
-                        List<Button> buttons2 = new List<Button>();
-                        for (int j = 0; j < 4; j++)
-                        {
-                            buttons2.Add(new Button((j + 1).ToString()) { X = 71, Y = 16 + j * 2 });
-                            if (Players[selectedPlayer].CardsOnTable[j] == null)
-                            {
-                                optionsField.Add(buttons2[j]);
-                                buttons2[j].Clicked += () =>
-                                {
-                                    int temp1 = i;
-                                    int temp2 = j;
-                                    Players[selectedPlayer].CardsOnTable[j] = Players[selectedPlayer].CardsInHand[i];
-                                    Players[selectedPlayer].CardsInHand.RemoveAt(i);
-                                    optionsField.Remove(placeCardPosText);
-                                    for (int k = 0; k < 4; k++)
-                                    {
-                                        optionsField.Remove(buttons2[k]);
-                                    }
-                                };
-                            }
-                        }
-                    };
-                    optionsField.Add(buttons1[i]);
+                    list.Add((i + 1).ToString());
                 }
+                int choose1 = MessageBox.Query("Choose.", "Choose card number", list.ToArray());
+                if (choose1 == 0)
+                {
+                    optionsField.Add(placeCard);
+                    return;
+                }
+                choose1--;
+                if (Players[selectedPlayer].CardsInHand[choose1].Energy > Players[selectedPlayer].Energy)
+                {
+                    MessageBox.ErrorQuery("Error", "Not enough energy to place this card!", "Ok");
+                    optionsField.Add(placeCard);
+                    return;
+                }
+                list.Clear();
+                for (int i = 0; i < 4; i++)
+                {
+                    if (Players[selectedPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
+                    {
+                        list.Add((i + 1).ToString());
+                    }
+                    else
+                    {
+                        list.Add("-");
+                    }
+                }
+                int choose2 = MessageBox.Query("Choose.", "Now choose card placement", list.ToArray());
+                if (Players[selectedPlayer].CardsOnTable[choose2].Equals(Cards.CreatedCards.GetNullCard()))
+                {
+                    Players[selectedPlayer].CardsOnTable[choose2] = Players[selectedPlayer].CardsInHand[choose1];
+                    Players[selectedPlayer].Energy -= Players[selectedPlayer].CardsInHand[choose1].Energy;
+                    Players[selectedPlayer].CardsInHand.RemoveAt(choose1);
+                    displayGame(botPlay);
+                }
+                else
+                {
+                    MessageBox.ErrorQuery("error", "You can't place a card above another.", "Ok");
+                }
+                optionsField.Add(placeCard);
             };
             optionsField.Add(placeCard);
+            optionsField.Add(yourEnergy);
 
         }
     }

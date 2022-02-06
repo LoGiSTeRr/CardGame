@@ -6,7 +6,7 @@ namespace CardGame.Cards
     {
 
     }
-    public class Card
+    public record Card
     {
 
         public List<string> Visual { get; set; }
