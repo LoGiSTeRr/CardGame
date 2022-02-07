@@ -55,7 +55,7 @@ namespace CardGame
             }
             pl1.CardsInHand.Add(Cards.CreatedCards.GetReservoirCard());
             pl2.CardsInHand.Add(Cards.CreatedCards.GetReservoirCard());
-            displayGame(false);
+            displayGame();
         }
         private void pullACard(Window optionsField, Button takeReservoir, Label takeCardLabel, Button takeRandomCard, Label backCard1, Label backCard2, Label cardsInStockLabel, Label cardsLeft)
         {
@@ -144,7 +144,7 @@ namespace CardGame
             MessageBox.Query(" ", "Change the player", "Ok");
             mainScreen.Remove(temp);
         }
-        public void displayGame(bool botPlay)
+        public void displayGame()
         {
             var yourHand = new Window()
             {
@@ -208,16 +208,18 @@ namespace CardGame
             nextTurnBut.Clicked += () =>
             {
                 nextTurn();
-                displayGame(botPlay);
+                displayGame();
             };
-            var quitAppication = new Button("Quit application")
+            var quitAppication = new Button("Quit to menu")
             {
                 X = 10,
                 Y = 2
             };
             quitAppication.Clicked += () =>
             {
-                Application.RequestStop();
+                Application.Top.Remove(mainScreen);
+                mainScreen.Clear();
+                Menu.DisplayMainMenu();
             };
             if (!Players[selectedPlayer].CardWasTaken)
             {
@@ -318,8 +320,7 @@ namespace CardGame
                     Players[selectedPlayer].CardsInHand[choose1].PosOnTheTable = choose2;
                     Players[selectedPlayer].Energy -= Players[selectedPlayer].CardsInHand[choose1].Energy;
                     Players[selectedPlayer].CardsInHand.RemoveAt(choose1);
-                    
-                    displayGame(botPlay);
+                    displayGame();
                 }
                 else
                 {
