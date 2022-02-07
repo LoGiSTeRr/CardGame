@@ -1,9 +1,9 @@
 ﻿namespace CardGame.Cards
 {
-    public enum CardType
-    {
+    public enum AbilityType
+    { 
         Attack,
         Defense,
-        Support
+        Passive
     }
 }

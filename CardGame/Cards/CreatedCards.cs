@@ -11,8 +11,7 @@
                 MaxHp = 6,
                 Hp = 6,
                 Energy = 2,
-                Type = Cards.CardType.Defense,
-                Rarity = Cards.CardRarity.Common
+                CardStatus = Status.Sleep
             };
         }
         public static Card GetWarriorCard()
@@ -24,8 +23,8 @@
                 MaxHp = 2,
                 Hp = 2,
                 Energy = 3,
-                Type = Cards.CardType.Attack,
-                Rarity = Cards.CardRarity.Common
+                CardStatus = Status.Sleep
+
             };
         }
         public static Card GetReservoirCard()
@@ -37,8 +36,8 @@
                 MaxHp = 2,
                 Hp = 2,
                 Energy = 1,
-                Type = Cards.CardType.Support,
-                Rarity = Cards.CardRarity.Common
+                CardStatus = Status.Sleep
+
             };
         }
         public static Card GetKnightCard()
@@ -50,8 +49,8 @@
                 MaxHp = 2,
                 Hp = 2,
                 Energy = 5,
-                Type = Cards.CardType.Attack,
-                Rarity = Cards.CardRarity.Common
+                CardStatus = Status.Sleep
+
             };
         }
         public static Card GetSkeletonCard()
@@ -63,8 +62,8 @@
                 MaxHp = 2,
                 Hp = 2,
                 Energy = 2,
-                Type = Cards.CardType.Attack,
-                Rarity = Cards.CardRarity.Common
+                CardStatus = Status.Sleep
+
             };
         }
         public static Card GetNullCard()

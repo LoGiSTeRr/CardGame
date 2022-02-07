@@ -2,13 +2,9 @@
 
 namespace CardGame.Cards
 {
-    public abstract class CardAbility
-    {
 
-    }
     public record Card
     {
-
         public List<string> Visual { get; set; }
         private string name;
         public string Name
@@ -42,11 +38,7 @@ namespace CardGame.Cards
             get => hp;
             set
             {
-                if (value <= 0)
-                {
-                    hp = 0;
-                }
-                else if (value >= maxHp)
+                if (value >= maxHp)
                 {
                     hp = maxHp;
                 }
@@ -82,9 +74,9 @@ namespace CardGame.Cards
                 }
             }
         }
-        public CardRarity Rarity { get; set; } = new CardRarity();
-        public CardType Type { get; set; } = new CardType();
-
+        public int PosOnTheTable { get; set; }
+        public List<CardAbility> Abilities { get; set; }
+        public Status CardStatus { get; set; }
         private string MakeNormal(string str)
         {
             string copy = str;
@@ -106,23 +98,22 @@ namespace CardGame.Cards
             {
                 $"* * * * * * * * * * *",
                 $"*                   *",
-                MakeNormal(Rarity.ToString()),
-                $"*                   *",
                 MakeNormal(Name.ToString()),
+                $"* * * * * * * * * * *",
+                MakeNormal($"Status: {CardStatus}"),
                 $"*                   *",
-                MakeNormal(Type.ToString()),
                 $"*                   *",
+                $"*                   *",
+                $"* * * * * * * * * * *",
                 $"*   ATK      HP     *",
                 MakeNormal(Atk.ToString() + "       " + Hp.ToString()),
                 $"*                   *",
                 $"*      ENERGY       *",
                 MakeNormal(Energy.ToString()),
-                $"*                   *",
                 $"* * * * * * * * * * *",
 
             };
         }
-
         public static string GetBack()
         {
             return $"* * * * * * * * * * *\n" +
@@ -151,6 +142,17 @@ namespace CardGame.Cards
                 result += Visual[i].ToString() + '\n';
             }
             return result;
+        }
+        public void GetDamage(Game game, IPlayable attackedPlayer, Card attackedCard)
+        {
+            for (int i = 0; i < Abilities.Count; i++)
+            {
+                if (Abilities[i].Type == AbilityType.Defense)
+                {
+                    Abilities[i].Activate(game, attackedPlayer, attackedCard);
+                }
+            }
+            this.Hp -= attackedCard.Atk;
         }
     }
 }

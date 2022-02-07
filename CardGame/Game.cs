@@ -19,7 +19,7 @@ namespace CardGame
         public List<IPlayable> Players { get; set; } = new List<IPlayable>();
         private int selectedPlayer = 0; // player[0] - you, player[1] - opponent
         private float energy = 0;
-        private int opponentOfPlayer { get { return selectedPlayer == 0 ? 1: 0; } }
+        public int OpponentOfPlayer { get { return selectedPlayer == 0 ? 1: 0; } }
         public List<Cards.Card> CardsInStock { get; set; } = new List<Cards.Card>();
         public void StartGame(Player pl1, Player pl2)
         {
@@ -71,16 +71,21 @@ namespace CardGame
             {
                 if (!Players[selectedPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                 {
-                    if (Players[opponentOfPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
+                    if (Players[selectedPlayer].CardsOnTable[i].CardStatus == Cards.Status.Sleep) 
+                    {
+                        Players[selectedPlayer].CardsOnTable[i].CardStatus = Cards.Status.Active;
+                        continue;
+                    }
+                    if (Players[OpponentOfPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                     {
                         Players[selectedPlayer].AmountOfPoints += Players[selectedPlayer].CardsOnTable[i].Atk;
                     }
                     else
                     {
-                        Players[opponentOfPlayer].CardsOnTable[i].Hp -= Players[selectedPlayer].CardsOnTable[i].Atk;
-                        if (Players[opponentOfPlayer].CardsOnTable[i].Hp == 0)
+                        Players[OpponentOfPlayer].CardsOnTable[i].Hp -= Players[selectedPlayer].CardsOnTable[i].Atk;
+                        if (Players[OpponentOfPlayer].CardsOnTable[i].Hp <= 0)
                         {
-                            Players[opponentOfPlayer].CardsOnTable[i] = Cards.CreatedCards.GetNullCard();
+                            Players[OpponentOfPlayer].CardsOnTable[i] = Cards.CreatedCards.GetNullCard();
                         }
                     }
                 }
@@ -89,11 +94,11 @@ namespace CardGame
         private void nextTurn()
         {
             attack();
-            if (Players[selectedPlayer].AmountOfPoints - Players[opponentOfPlayer].AmountOfPoints >= 5)
+            if (Players[selectedPlayer].AmountOfPoints - Players[OpponentOfPlayer].AmountOfPoints >= 5)
             {
                 MessageBox.Query(" ", $"{Players[selectedPlayer].Name} won!!\n" +
                                       $"your damage: {Players[selectedPlayer].AmountOfPoints}x\n" +
-                                      $"opponent damage: {Players[opponentOfPlayer].AmountOfPoints}x", "Ok");
+                                      $"opponent damage: {Players[OpponentOfPlayer].AmountOfPoints}x", "Ok");
                 Application.RequestStop();
                 return;
             }
@@ -131,13 +136,13 @@ namespace CardGame
             }
             for (int i = 0; i < 4; i++)
             {
-                if (Players[opponentOfPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
+                if (Players[OpponentOfPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                 {
                     gameField.Add(new Label(Cards.Card.GetBack()) { X = 1 + 21 * i, Y = 1 });
                 }
                 else
                 {
-                    gameField.Add(new Label(Players[opponentOfPlayer].CardsOnTable[i].GetVisual()) { X = 1 + 21 * i, Y = 1 });
+                    gameField.Add(new Label(Players[OpponentOfPlayer].CardsOnTable[i].GetVisual()) { X = 1 + 21 * i, Y = 1 });
                 }
             }
             for (int i = 0; i < 4; i++)
@@ -162,7 +167,7 @@ namespace CardGame
             optionsField.Add(new Label($"{Players[selectedPlayer].Name}'s turn.") { X = 40, Y = 2 });
             optionsField.Add(new Label($"Make the difference of damage equal to 5") { X = 51, Y = 4 });
             optionsField.Add(new Label($"your damage: {Players[selectedPlayer].AmountOfPoints}x") { X = 51, Y = 6 });
-            optionsField.Add(new Label($"opponent damage: {Players[opponentOfPlayer].AmountOfPoints}x") { X = 51, Y = 7 });
+            optionsField.Add(new Label($"opponent damage: {Players[OpponentOfPlayer].AmountOfPoints}x") { X = 51, Y = 7 });
             var nextTurnBut = new Button("Next turn")
             {
                 X = 10,
@@ -278,8 +283,10 @@ namespace CardGame
                 if (Players[selectedPlayer].CardsOnTable[choose2].Equals(Cards.CreatedCards.GetNullCard()))
                 {
                     Players[selectedPlayer].CardsOnTable[choose2] = Players[selectedPlayer].CardsInHand[choose1];
+                    Players[selectedPlayer].CardsInHand[choose1].PosOnTheTable = choose2;
                     Players[selectedPlayer].Energy -= Players[selectedPlayer].CardsInHand[choose1].Energy;
                     Players[selectedPlayer].CardsInHand.RemoveAt(choose1);
+                    
                     displayGame(botPlay);
                 }
                 else
