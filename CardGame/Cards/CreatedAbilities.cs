@@ -12,7 +12,7 @@
         //Attacks card one more time.
         public static void CardMurder(Game game, IPlayable playerWhoAttacks, Card cardWhichAttacks)
         {
-            game.Players[game.OpponentOfPlayer].CardsOnTable[cardWhichAttacks.PosOnTheTable].Hp -= cardWhichAttacks.Atk;
+            game.Players[game.OpponentOfPlayer].CardsOnTable[cardWhichAttacks.PosOnTheTable].GetDamage(game, playerWhoAttacks, cardWhichAttacks);
         }
 
         //Defense Abilities

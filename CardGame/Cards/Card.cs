@@ -75,7 +75,7 @@ namespace CardGame.Cards
             }
         }
         public int PosOnTheTable { get; set; }
-        public List<CardAbility> Abilities { get; set; }
+        public List<CardAbility> Abilities { get; set; } // max is 3
         public Status CardStatus { get; set; }
         private string MakeNormal(string str)
         {
@@ -101,9 +101,9 @@ namespace CardGame.Cards
                 MakeNormal(Name.ToString()),
                 $"* * * * * * * * * * *",
                 MakeNormal($"Status: {CardStatus}"),
-                $"*                   *",
-                $"*                   *",
-                $"*                   *",
+                Abilities?.Count >= 1 ? MakeNormal(Abilities[0].Name.ToString()) : $"*                   *",
+                Abilities?.Count >= 2 ? MakeNormal(Abilities[1].Name.ToString()) : $"*                   *",
+                Abilities?.Count == 3 ? MakeNormal(Abilities[2].Name.ToString()) : $"*                   *",
                 $"* * * * * * * * * * *",
                 $"*   ATK      HP     *",
                 MakeNormal(Atk.ToString() + "       " + Hp.ToString()),
@@ -145,7 +145,7 @@ namespace CardGame.Cards
         }
         public void GetDamage(Game game, IPlayable attackedPlayer, Card attackedCard)
         {
-            for (int i = 0; i < Abilities.Count; i++)
+            for (int i = 0; i < Abilities?.Count; i++)
             {
                 if (Abilities[i].Type == AbilityType.Defense)
                 {

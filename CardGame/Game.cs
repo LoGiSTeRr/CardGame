@@ -34,8 +34,14 @@ namespace CardGame
                 CardsInStock.Add(Cards.CreatedCards.GetKnightCard());
                 CardsInStock.Add(Cards.CreatedCards.GetWarriorCard());
                 CardsInStock.Add(Cards.CreatedCards.GetShieldManCard());
+                CardsInStock.Add(Cards.CreatedCards.GetAssasinCard());
+                CardsInStock.Add(Cards.CreatedCards.GetBigThornCard());
+                CardsInStock.Add(Cards.CreatedCards.GetLittleThornCard());
+                CardsInStock.Add(Cards.CreatedCards.GetCrazyDudeCard());
+                CardsInStock.Add(Cards.CreatedCards.GetCardHaterCard());
+                CardsInStock.Add(Cards.CreatedCards.GetBigWarriorCard());
             }
-            //CardsInStock.Shuffle();
+            CardsInStock.Shuffle();
 
             for (int i = 0; i < 3; i++)
             {
@@ -78,11 +84,27 @@ namespace CardGame
                     }
                     if (Players[OpponentOfPlayer].CardsOnTable[i].Equals(Cards.CreatedCards.GetNullCard()))
                     {
+                        for (int j = 0; j < Players[selectedPlayer].CardsOnTable[i].Abilities?.Count; j++)
+                        {
+                            if (Players[selectedPlayer].CardsOnTable[i].Abilities[j].Activate == Cards.CreatedAbilities.PlayerMurder)
+                            {
+                                Players[selectedPlayer].CardsOnTable[i].Abilities[j].Activate(this, Players[selectedPlayer], Players[selectedPlayer].CardsOnTable[i]);
+                                break;
+                            }
+                        }
                         Players[selectedPlayer].AmountOfPoints += Players[selectedPlayer].CardsOnTable[i].Atk;
                     }
                     else
                     {
-                        Players[OpponentOfPlayer].CardsOnTable[i].Hp -= Players[selectedPlayer].CardsOnTable[i].Atk;
+                        for (int j = 0; j < Players[selectedPlayer].CardsOnTable[i].Abilities?.Count; j++)
+                        {
+                            if (Players[selectedPlayer].CardsOnTable[i].Abilities[j].Type == Cards.AbilityType.Attack && Players[selectedPlayer].CardsOnTable[i].Abilities[j].Activate != Cards.CreatedAbilities.PlayerMurder)
+                            {
+                                Players[selectedPlayer].CardsOnTable[i].Abilities[j].Activate(this, Players[selectedPlayer], Players[selectedPlayer].CardsOnTable[i]);
+                                break;
+                            }
+                        }
+                        Players[OpponentOfPlayer].CardsOnTable[i].GetDamage(this, Players[OpponentOfPlayer], Players[OpponentOfPlayer].CardsOnTable[i]);
                         if (Players[OpponentOfPlayer].CardsOnTable[i].Hp <= 0)
                         {
                             Players[OpponentOfPlayer].CardsOnTable[i] = Cards.CreatedCards.GetNullCard();
@@ -106,6 +128,16 @@ namespace CardGame
             selectedPlayer = selectedPlayer == 1 ? 0 : 1;
             Players[selectedPlayer].CardWasTaken = false;
             Players[selectedPlayer].Energy = energy;
+            for (int i = 0; i < Players[selectedPlayer].CardsOnTable.Count; i++)
+            {
+                for (int j = 0; j < Players[selectedPlayer].CardsOnTable[i].Abilities?.Count; j++)
+                {
+                    if(Players[selectedPlayer].CardsOnTable[i].Abilities[j].Type == Cards.AbilityType.Passive)
+                    {
+                        Players[selectedPlayer].CardsOnTable[i].Abilities[j].Activate(this, Players[selectedPlayer], Players[selectedPlayer].CardsOnTable[i]);
+                    }
+                }
+            }
             mainScreen.Clear();
             Window temp = new Window(" ") { X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() };
             mainScreen.Add(temp);
